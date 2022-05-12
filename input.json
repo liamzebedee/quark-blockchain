@@ -1,2 +1,13 @@
 {
+    "transaction": {
+        "input_storage_leaves": [
+            ["420", "24", "1231231"],
+            ["999", "23", "3543433"]
+        ],
+        "num_input_storage_leaves": 1,
+        "data": {
+            "key": "420",
+            "action": "1"
+        }
+    }
 }

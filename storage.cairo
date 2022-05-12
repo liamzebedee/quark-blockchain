@@ -3,6 +3,15 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.hash import hash2
 from starkware.cairo.common.alloc import alloc
+from starkware.cairo.common.default_dict import (
+    default_dict_new,
+    default_dict_finalize,
+)
+from starkware.cairo.common.dict import dict_new, dict_write, dict_read
+from starkware.cairo.common.dict_access import DictAccess
+from starkware.cairo.common.registers import get_fp_and_pc
+
+
 
 struct InputStorageLeaf:
     member key : felt
@@ -14,41 +23,76 @@ struct InputStorageLeaf:
     # hash = hash(prev_hash, concat(key, value))
 end
 
-struct DistributedStorage:
-    member account_dict_start : DictAccess*
+struct DistStorage:
+    member dict_start : DictAccess*
+    # Pointer to end of the storage dictionary accesses.
+    member dict_end : DictAccess*
 end
 
-# let account_dict_end = state.account_dict_end
+# Gets the distributed storage, initialized with the input storage leaves
+# specified in the hint `transcation.input_storage_leaves`.
+func get_input_storage_dict() -> (dict : DictAccess*):
+    alloc_locals
+    
+    %{
+        input_storage_leaves = program_input['transaction']['input_storage_leaves']
+        
+        initial_dict = {
+            # int(key): segments.gen_arg([
+            #     int(value), 
+            #     int(prev_hash)
+            # ])
+            int(key): int(value)
+            for (key, value, prev_hash) in input_storage_leaves
+        }
 
-# # Retrieve the pointer to the current state of the account.
-# let (local old_account : Account*) = dict_read{
-#     dict_ptr=account_dict_end
-# }(key=account_id)
+        print(initial_dict)
 
-# dict_write{dict_ptr=account_dict_end}(
-#     key=account_id, new_value=cast(&new_account, felt)
-# )
-# local new_state : AmmState
-# assert new_state.account_dict_start = (
-#     state.account_dict_start)
-# assert new_state.account_dict_end = account_dict_end
+        # Save a copy.
+        initial_tx_input_storage = dict(initial_dict)
+    %}
 
+    # Initialize the dictionary.
+    let (dict) = dict_new()
+    # let (dict) = default_dict_new(default_value=0)
+    
+    return (dict=dict)
+end
 
-func d_storage_write(
-    d_storage_ptr : felt*,
-    key : felt,
-    value : felt
-):
-    ret
+func get_input_storage() -> (d_storage : DistStorage):
+    alloc_locals
+
+    local d_storage : DistStorage
+    
+    let (input_storage_dict) = get_input_storage_dict()
+    assert d_storage.dict_start = input_storage_dict
+    assert d_storage.dict_end = input_storage_dict
+
+    # LEARN: Using the value of fp directly, requires defining a variable named __fp__.
+    # LEARN: let (__fp__, _) = get_fp_and_pc()
+    return (d_storage=d_storage)
 end
 
 func d_storage_read(
-    d_storage_ptr : felt*,
+    dict_end_ptr : DictAccess*,
     key : felt
 ) -> (value : felt):
     # Get the value from the storage leaves.
-    ret
+    let (value : felt) = dict_read{dict_ptr=dict_end_ptr}(key=key)
+    return (value=value)
 end
+
+func d_storage_write(
+    dict_end_ptr : DictAccess*,
+    key : felt,
+    value : felt
+):
+    # Implicit argument binding must be an identifier.
+    dict_write{dict_ptr=dict_end_ptr}(key=key, new_value=value)
+    return ()
+end
+
+
 
 
 
