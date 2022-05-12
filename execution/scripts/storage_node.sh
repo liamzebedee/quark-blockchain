@@ -14,4 +14,5 @@ cairo-sharp is_verified 0xf457e4311f8229ab7b08191a6658112a29a962a9f2fe95d7a3d4f1
 
 echo "Writing storage leaves"
 cairo-run --program=example_compiled.json --print_output --layout=small --program_input=input.json
+
 # Extract the modified storage leaves from here, and flush them to the db.

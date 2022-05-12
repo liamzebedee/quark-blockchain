@@ -1,5 +1,13 @@
-let { connect } = require('lotion')
+const app = require('./api-server')
 
-let { state } = await connect(GCI)
+async function run() {
+    console.log('Starting storage node')
 
-let myBalance = await state.accounts[myAddress].balance
+    // Run a HTTP server.
+    const port = 3000
+    app.listen(port, () => {
+        console.log(`API server listening on http://localhost:${port}`)
+    });
+}
+
+run().catch(ex => { throw ex })
