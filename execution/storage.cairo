@@ -45,16 +45,11 @@ func get_input_storage_dict() -> (dict : DictAccess*):
             int(key): int(value)
             for (key, value, prev_hash) in input_storage_leaves
         }
-
-        print(initial_dict)
-
-        # Save a copy.
-        initial_tx_input_storage = dict(initial_dict)
     %}
 
     # Initialize the dictionary.
-    let (dict) = dict_new()
-    # let (dict) = default_dict_new(default_value=0)
+    # let (dict) = dict_new()
+    let (dict) = default_dict_new(default_value=0)
     
     return (dict=dict)
 end

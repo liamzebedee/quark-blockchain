@@ -49,11 +49,9 @@ func main{
     pedersen_ptr : HashBuiltin*,
     range_check_ptr,
 }():
-    # IDK if we need this.
     alloc_locals
 
     # Load the inputs.
-    # let (dummy_call : DummyCall*) = alloc()
     local dummy_call : DummyCall*
     %{
         dummy_call = program_input['transaction']['data']
@@ -76,88 +74,64 @@ func main{
     )
 
     # Finalise the output.
-    
-    # Finalize the state dictionary.
-    # Compute the hash of all output leaves.
 
+    # (1) Squash the storage dictionary, finalising all DictAccess'es into the latest value for each key.
     let (
         finalized_dict_start, 
         finalized_dict_end
     ) = dict_squash{
         range_check_ptr=range_check_ptr
     }(d_storage.dict_start, d_storage.dict_end)
-
-    # let (
-    #     finalized_dict_start, finalized_dict_end
-    # ) = default_dict_finalize(d_storage.dict_start, d_storage.dict_end, 0)
-
-    let output = cast(output_ptr, Output*)
-    # let output_ptr = output_ptr + Output.SIZE
-
-    copy_to_output(finalized_dict_start, finalized_dict_end, output, 0)
     
-    # let (local hash_dict_start : DictAccess*) = dict_new()
-    # let (hash_dict_end) = hash_dict_values(finalized_dict_start, finalized_dict_end, hash_dict_start)
-
-    # let (local struct_array : OutputStorageLeaf*) = alloc()
-    # compute_merkle(struct_array)
+    # (2) Copy all writes to the output, along with their hash.
+    copy_to_output(finalized_dict_start, finalized_dict_end, 0)
 
     return ()
 end
 
 func copy_to_output{
     output_ptr : felt*,
+    # hash_ptr : HashBuiltin*,
     pedersen_ptr : HashBuiltin*,
 }(
     dict_start : DictAccess*,
     dict_end : DictAccess*,
-    output : Output*,
     n : felt
-) -> (output : Output*):
-    # alloc_locals 
+) -> ():
+    alloc_locals 
+
     if dict_start == dict_end:
-        return (output=output)
+        return ()
     end
+
+    local prev_hash : felt
+
+    %{
+        # Get the previous hash for this storage leaf.
+        storage_key = ids.dict_start.key
+        storage_prev_hash = 0
+        for (key, _, prev_hash) in input_storage_leaves:
+            if int(key) == storage_key:
+                storage_prev_hash = int(prev_hash)
+        
+        ids.prev_hash = storage_prev_hash
+    %}
+
+    # Set res = H(H(key, value), prev_hash).
+    let (hash_value) = hash2{hash_ptr=pedersen_ptr}(dict_start.key, dict_start.new_value)
+    let (hash_value) = hash2{hash_ptr=pedersen_ptr}(hash_value, prev_hash)
 
     serialize_word(dict_start.key)
     serialize_word(dict_start.new_value)
+    serialize_word(hash_value)
     # assert output.leaves[n].key = dict_start.key
     # assert output.leaves[n].value = dict_start.new_value
     # assert output.leaves[n].hash = hash2{hash_ptr=pedersen_ptr}(dict_start.key, dict_start.new_value)
 
     return copy_to_output(
-        dict_start=dict_start + DictAccess.SIZE, dict_end=dict_end, output=output, n=n+1
+        dict_start=dict_start + DictAccess.SIZE, dict_end=dict_end, n=n+1
     )
 end
-
-# func hash_dict_values{pedersen_ptr : HashBuiltin*}(
-#     dict_start : DictAccess*, dict_end : DictAccess*, hash_dict_start : DictAccess*
-# ) -> (hash_dict_end : DictAccess*):
-#     if dict_start == dict_end:
-#         return (hash_dict_end=hash_dict_start)
-#     end
-
-#     # let (prev_hash) = hash_account(account=cast(dict_start.prev_value, Account*))
-    
-#     let (res) = hash2{hash_ptr=pedersen_ptr}()
-
-#     # let (new_hash) = hash_account(account=cast(dict_start.new_value, Account*))
-
-#     # Add an entry to the output dict.
-#     dict_update{dict_ptr=hash_dict_start}(
-#         key=dict_start.key, prev_value=prev_hash, new_value=new_hash
-#     )
-#     return hash_dict_values(
-#         dict_start=dict_start + DictAccess.SIZE, dict_end=dict_end, hash_dict_start=hash_dict_start
-#     )
-# end
-
-# func compute_merkle(
-#     finalized_dict_start : DictAccess*, 
-#     finalized_dict_end : DictAccess*
-# )
-#     assert struct_array[0] = MyStruct(first_member=1, second_member=2)
-# end
 
 func process_transaction(
     d_storage : DistStorage,
@@ -170,9 +144,10 @@ func process_transaction(
     # Read the current value from distributed storage.
     # let (current_value) = d_storage_read(dict_end, data.key)
     %{ print(ids.data.key) %}
-    
+
     let (current_value : felt) = dict_read{dict_ptr=dict_end}(key=data.key)
-    assert current_value = 24
+    # let current_value = 24
+    # assert current_value = 24
 
     # Write the new value based on the transaction data.
     # 

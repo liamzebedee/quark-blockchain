@@ -1,0 +1,15 @@
+{
+  "name": "sequencer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "lotion": "^0.4.27"
+  }
+}
