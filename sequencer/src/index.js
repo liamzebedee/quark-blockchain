@@ -1,7 +1,6 @@
 let lotion = require('lotion')
 const { join } = require('path')
 
-// / Users / liamz / Documents / Projects / shard / cairo / sequencer / networks / 
 const CHAIN_GCI = 'bb9d9d9618a925b1d34188cccbdea589'
 
 const NETWORK_DIR = join(__dirname, '../networks/', CHAIN_GCI, '/')

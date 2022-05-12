@@ -12,7 +12,7 @@ Execution nodes use the storage network for their memory:
  1. **Reads**. Every transaction declares the storage leaves it reads from ahead-of-time, and these are fetched in parallel from the storage network at the beginning of tx execution. 
  2. **Writes**. The execution node generates a STARK proof of a transaction's state transition. This is used to prove the storage writes are authorised to the storage nodes. 
 
-Transactions are scheduled in parallel. In order to maintain a consistent view of the machine's memory, the sequencer provides the ordering of transactions to both the execution and storage layers.
+Transactions are scheduled in parallel. In order to maintain a consistent view of the machine's memory, the sequencer provides the total ordering of transactions to both the execution and storage layers.
 
 The memory model is best described as [multiversion concurrency control](https://en.wikipedia.org/wiki/Multiversion_concurrency_control), as there are no global locks. Like Bitcoin and Solana, transactions can be scheduled in parallel if they don't modify the same state. **Unlike Bitcoin and Solana**, the cost of verifying transactions is **vastly cheaper** - atop [Cairo proofs](https://twitter.com/liamzebedee/status/1516249413089636352), tx verification scales sublinearly in number of VM steps - `O(log^2 n)`.
 

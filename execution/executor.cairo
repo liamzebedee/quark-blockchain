@@ -17,9 +17,6 @@ from starkware.cairo.common.default_dict import (
 # Instead, we have a very simplified transaction, which modifies a simple piece of 
 # state, in order to demonstrate the sharding.
 struct Transaction:
-    # member input_storage_leaves : felt*
-    # member num_input_storage_leaves : felt
-
     # Calldata of transcation. 
     # For this demo, full contract execution is mocked.
     member data : DummyCall*
@@ -32,16 +29,16 @@ struct DummyCall:
     member action : felt
 end
 
-struct OutputStorageLeaf:
-    member key : felt
-    member value : felt
-    member hash : felt
-end
+# struct OutputStorageLeaf:
+#     member key : felt
+#     member value : felt
+#     member hash : felt
+# end
 
-struct Output:
-    member leaves : OutputStorageLeaf*
-    member num_output_storage_leaves : felt
-end
+# struct Output:
+#     member leaves : OutputStorageLeaf*
+#     member num_output_storage_leaves : felt
+# end
 
 
 func main{
@@ -89,9 +86,25 @@ func main{
     return ()
 end
 
+
+%{
+# def field_element_repr2(val: int, prime: int) -> str:
+#     """
+#     Converts a field element (given as int) to a decimal/hex string according to its size.
+#     """
+#     # Shift val to the range (-prime // 2, prime // 2).
+#     shifted_val = (val + prime // 2) % prime - (prime // 2)
+#     # If shifted_val is small, use decimal representation.
+#     if abs(shifted_val) < 2 ** 40:
+#         return str(shifted_val)
+#     # Otherwise, use hex representation (allowing a sign if the number is close to prime).
+#     if abs(shifted_val) < 2 ** 100:
+#         return hex(shifted_val)
+#     return hex(val)
+%}
+
 func copy_to_output{
     output_ptr : felt*,
-    # hash_ptr : HashBuiltin*,
     pedersen_ptr : HashBuiltin*,
 }(
     dict_start : DictAccess*,
@@ -124,9 +137,9 @@ func copy_to_output{
     serialize_word(dict_start.key)
     serialize_word(dict_start.new_value)
     serialize_word(hash_value)
-    # assert output.leaves[n].key = dict_start.key
-    # assert output.leaves[n].value = dict_start.new_value
-    # assert output.leaves[n].hash = hash2{hash_ptr=pedersen_ptr}(dict_start.key, dict_start.new_value)
+    #x assert output.leaves[n].key = dict_start.key
+    #x assert output.leaves[n].value = dict_start.new_value
+    #x assert output.leaves[n].hash = hash2{hash_ptr=pedersen_ptr}(dict_start.key, dict_start.new_value)
 
     return copy_to_output(
         dict_start=dict_start + DictAccess.SIZE, dict_end=dict_end, n=n+1
@@ -143,8 +156,6 @@ func process_transaction(
 
     # Read the current value from distributed storage.
     # let (current_value) = d_storage_read(dict_end, data.key)
-    %{ print(ids.data.key) %}
-
     let (current_value : felt) = dict_read{dict_ptr=dict_end}(key=data.key)
     # let current_value = 24
     # assert current_value = 24
