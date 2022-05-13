@@ -87,7 +87,7 @@ func main{
 end
 
 
-%{
+# %{
 # def field_element_repr2(val: int, prime: int) -> str:
 #     """
 #     Converts a field element (given as int) to a decimal/hex string according to its size.
@@ -101,7 +101,7 @@ end
 #     if abs(shifted_val) < 2 ** 100:
 #         return hex(shifted_val)
 #     return hex(val)
-%}
+# %}
 
 func copy_to_output{
     output_ptr : felt*,

@@ -35,6 +35,17 @@ WIP:
    * Accepts execution receipts from executor, verifies the proofs on the Goerli StarkNet contracts.
    * Stores data in SQLite.
 
+### Install.
+
+```
+# Setup Python virtual env.
+python3.7 -m venv ~/cairo_venv
+source ~/cairo_venv/bin/activate
+
+# Install this forked version of the cairo toolchain
+# https://github.com/liamzebedee/cairo-lang
+# pip3 install cairo-lang
+```
 ## Napkin calculations.
 
 ```

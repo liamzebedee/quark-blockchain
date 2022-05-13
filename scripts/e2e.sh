@@ -1,21 +1,41 @@
-#!/bin/env sh
+#!/usr/bin/env bash
+# 
+# Performs an end-to-end test of the quark blockchain.
+# 
+# Usage: e2e.sh <tx_input> <gci> <eth_rpc_url>
+# Arguments:
+#   tx_input - path to the transaction's input.json.
+#   gci - the global chain identifier.
+#   eth_rpc_url - the ethereum node rpc url.
+# 
 set -ex
 
+# Globals.
+TEMPDIR=$(mktemp -d)
+
+# Argument parsing.
+# 
+export TX_INPUT=$1
 # Tendermint Global Chain Identifier (GCI).
-export GCI=0x
-export ETH_RPC_URL=""
-
-
-
-# TODO: hash program_input.json
-export TX_HASH=""
+export GCI=$2
+export ETH_RPC_URL=$3
 
 
 # 
 # Sequence transaction.
 # 
 
-lotion send $GCI '{ "hash" : "$TX_HASH" }'
+echo Transaction: $TX_INPUT
+
+export TX_HASH=$(cat $TX_INPUT | sha256sum | awk '{print $1}')
+echo Transaction hash: $TX_HASH
+
+export SEQUENCER_BODY=$(jq --null-input \
+    --arg TX_HASH "$TX_HASH" \
+    '{ "hash": $TX_HASH }')
+
+lotion send $GCI "${SEQUENCER_BODY}"
+read
 
 # Response:
 # {
@@ -26,22 +46,17 @@ lotion send $GCI '{ "hash" : "$TX_HASH" }'
 # }
 
 
-
-
 # 
-# Executor.
+# Execute transaction.
 # 
-
-
-cairo-compile executor.cairo --output executor_compiled.json
 
 echo "Executing transaction"
-# cairo-run --program=executor_compiled.json --print_output --layout=small --program_input=input.json
-TXID=$(cairo-sharp submit --source executor.cairo --program_input input.json)
+cairo-run --program=execution/out/executor_compiled.json --layout=small --program_input=$TX_INPUT --program_output_file $TEMPDIR/output.json --cairo_pie_output $TEMPDIR/pie.bin
+
+echo "Generating STARK proof"
+
 
 echo "Verifying transaction"
-cairo-sharp status $TXID
-cairo-sharp is_verified 0xf457e4311f8229ab7b08191a6658112a29a962a9f2fe95d7a3d4f1200eef0195 --node_url=$ETH_RPC_URL
 
 
 echo "Writing storage leaves"
