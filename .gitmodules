@@ -1,0 +1,10 @@
+[submodule "vendor/cairo-verifier"]
+	path = vendor/cairo-verifier
+	url = https://github.com/patrickbiel01/Cairo_Verifier
+[submodule "prover/giza"]
+	path = prover/giza
+	url = https://github.com/maxgillett/giza
+[submodule "prover/winterfell"]
+    path = prover/giza
+    url = https://github.com/maxgillett/winterfell
+	branch = custom_evaluation_frame

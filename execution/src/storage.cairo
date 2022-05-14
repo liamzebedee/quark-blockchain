@@ -11,17 +11,14 @@ from starkware.cairo.common.dict import dict_new, dict_write, dict_read
 from starkware.cairo.common.dict_access import DictAccess
 from starkware.cairo.common.registers import get_fp_and_pc
 
-
-
-struct InputStorageLeaf:
-    member key : felt
-    member value : felt
-
-    # Leaf identity = H(commitment, key, value)
-    # Prev hash is that of the leaf before.
-    member prev_hash : felt
-    # hash = hash(prev_hash, concat(key, value))
-end
+# struct InputStorageLeaf:
+#     member key : felt
+#     member value : felt
+#     # Leaf identity = H(commitment, key, value)
+#     # Prev hash is that of the leaf before.
+#     member prev_hash : felt
+#     # hash = hash(prev_hash, concat(key, value))
+# end
 
 struct DistStorage:
     member dict_start : DictAccess*
@@ -38,10 +35,6 @@ func get_input_storage_dict() -> (dict : DictAccess*):
         input_storage_leaves = program_input['transaction']['input_storage_leaves']
         
         initial_dict = {
-            # int(key): segments.gen_arg([
-            #     int(value), 
-            #     int(prev_hash)
-            # ])
             int(key): int(value)
             for (key, value, prev_hash) in input_storage_leaves
         }
@@ -68,27 +61,24 @@ func get_input_storage() -> (d_storage : DistStorage):
     return (d_storage=d_storage)
 end
 
-func d_storage_read(
-    dict_end_ptr : DictAccess*,
-    key : felt
-) -> (value : felt):
-    # Get the value from the storage leaves.
-    let (value : felt) = dict_read{dict_ptr=dict_end_ptr}(key=key)
-    return (value=value)
-end
+# func d_storage_read(
+#     dict_end_ptr : DictAccess*,
+#     key : felt
+# ) -> (value : felt):
+#     # Get the value from the storage leaves.
+#     let (value : felt) = dict_read{dict_ptr=dict_end_ptr}(key=key)
+#     return (value=value)
+# end
 
-func d_storage_write(
-    dict_end_ptr : DictAccess*,
-    key : felt,
-    value : felt
-):
-    # Implicit argument binding must be an identifier.
-    dict_write{dict_ptr=dict_end_ptr}(key=key, new_value=value)
-    return ()
-end
-
-
-
+# func d_storage_write(
+#     dict_end_ptr : DictAccess*,
+#     key : felt,
+#     value : felt
+# ):
+#     # Implicit argument binding must be an identifier.
+#     dict_write{dict_ptr=dict_end_ptr}(key=key, new_value=value)
+#     return ()
+# end
 
 
 

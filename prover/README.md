@@ -11,6 +11,15 @@ One alternative is integrating open-source Cairo provers, such as [giza](https:/
 
 In the meantime, this implements a **mock prover** - which aims to simulate the same aspects of proof generation (proving time, proof size, etc).
 
+## Install.
+
+```sh
+docker run --mount type=bind,src=$(pwd)/giza,dst=/app/giza --mount type=bind,src=$(pwd)/winterfell,dst=/app/winterfell -it a82bf5cf28b6287f043734c6df44ef9e0d77b68a9220226baf2859e998569972 bash
+# Inside the container.
+cd /app/giza/examples
+cargo +nightly run
+```
+
 ### Computing the fact.
 
 ```py
@@ -23,3 +32,4 @@ Web3.solidityKeccak([‘uint256‘, ‘bytes32‘], [
 ```
 
 Source: https://www.cairo-lang.org/playground-sharp-alpha/
+
