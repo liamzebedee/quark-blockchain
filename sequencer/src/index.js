@@ -1,17 +1,19 @@
 let lotion = require('lotion')
 const { join } = require('path')
 
-const CHAIN_GCI = 'bb9d9d9618a925b1d34188cccbdea589'
+const NETWORK_DIR = join(__dirname, '../networks/')
+const NETWORK_ID = 'example-chain'
 
-const NETWORK_DIR = join(__dirname, '../networks/', CHAIN_GCI, '/')
 let app = lotion({
     initialState: {
         clock: 0,
         txs: {}
     },
-    keyPath: join(NETWORK_DIR, '/config/priv_validator_key.json'),
-    genesisPath: join(NETWORK_DIR, '/config/genesis.json'),
+    // keyPath: join(NETWORK_DIR, '/config/priv_validator_key.json'),
+    // genesisPath: join(NETWORK_DIR, '/config/genesis.json'),
 })
+
+app.home = join(NETWORK_DIR, '/', NETWORK_ID)
 
 function transactionHandler(state, transaction) {
     let time = state.clock
