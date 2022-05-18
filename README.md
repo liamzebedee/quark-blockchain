@@ -1,7 +1,18 @@
 quark
 =====
 
-Prototyping a new blockchain design which is horizontally scalable.
+A decentralized state machine that can transfer 1,000,000 unique tokens on Uniswap in a single atomic transaction. How?
+
+ * **UXTO-like storage**. Transactions only lock the parts of state they modify, there is no global state lock like in EVM.
+ * ...**distributed**. Instead of every node storing the entire state, we partition the data in the same way Google's Bigtable/Spanner scales to trillions of rows. 
+ * ...**decoupled from execution**. STARK proofs are the answer - self-contained transactions that prove the storage leaves they updated, in `O(log N)` time. 
+
+> Atomic composability - cool. 
+> Blockchains - cool.
+> Rollups? Who wants to deal with bridges? Ew, yuck. 
+> Solana? Yeah it's more parallel, but really it's still constrained, it's just 10x higher gas limit.
+
+## Design.
 
 The blockchain state machine is decoupled into sequencing, execution, and storage layers.
 
