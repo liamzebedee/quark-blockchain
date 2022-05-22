@@ -1,7 +1,7 @@
 quark
 =====
 
-*quark - quick! STARK*
+*quark - quick STARK!*
 
 A decentralized horizontally-scaled state machine that can transfer 1,000,000 unique tokens on Uniswap in a single atomic transaction. How?
 
