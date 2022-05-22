@@ -1,16 +1,15 @@
 quark
 =====
 
-A decentralized state machine that can transfer 1,000,000 unique tokens on Uniswap in a single atomic transaction. How?
+*quark - quick! STARK*
+
+A decentralized horizontally-scaled state machine that can transfer 1,000,000 unique tokens on Uniswap in a single atomic transaction. How?
 
  * **UXTO-like storage**. Transactions only lock the parts of state they modify, there is no global state lock like in EVM.
  * ...**distributed**. Instead of every node storing the entire state, we partition the data in the same way Google's Bigtable/Spanner scales to trillions of rows. 
  * ...**decoupled from execution**. STARK proofs are the answer - self-contained transactions that prove the storage leaves they updated, in `O(log N)` time. 
 
-> Atomic composability - cool. 
-> Blockchains - cool.
-> Rollups? Who wants to deal with bridges? Ew, yuck. 
-> Solana? Yeah it's more parallel, but really it's still constrained, it's just 10x higher gas limit.
+This is a **completely new L1 architecture** that scales better than Rollups and Solana, and doesn't compromise on decentralization.
 
 ## Design.
 
@@ -35,16 +34,29 @@ More information in this [system model](https://viewer.diagrams.net/?tags=%7B%7D
 
 ## Proof of Concept.
 
-WIP:
-
  * Sequencer - Tendermint blockchain built with [Lotion](https://lotionjs.com/).
  * Executor - 
    * Built atop Starkware's [Cairo](https://www.cairo-lang.org/).
    * Simple PoC of transactional memory. We run a program which accepts storage leaf inputs, performs some computation, and outputs the storage leaves written.
-   * Generates proofs using the [SHARP service](https://www.cairo-lang.org/docs/sharp.html).
+   * Generates proofs and sends them to the storage layer
  * Storage - 
-   * Accepts execution receipts from executor, verifies the proofs on the Goerli StarkNet contracts.
+   * Accepts execution receipts from executor, verifies the proofs, flushes the state.
    * Stores data in SQLite.
+
+Progress:
+
+ - [x] Implement sequencer
+ - [x] Implement executer proof-of-concept
+ - [x] Implement storage backend
+ - [x] Setup simple e2e communications between all three
+ - [ ] Open-source Cairo prover
+   - [x] [CLI to generate proofs](https://github.com/maxgillett/giza/pull/1)
+   - [x] Reverse-engineer Cairo runner outputs
+   - [ ] Parse cairo-runner output into winterfell structs
+   - [ ] implement cairo prime field
+ - [ ] generate proofs and verify them on the storage node
+ - [ ] test networking speed.
+ - [ ] simple web UI for realtime storage updates
 
 ### Install.
 
@@ -57,6 +69,7 @@ source ~/cairo_venv/bin/activate
 # https://github.com/liamzebedee/cairo-lang
 # pip3 install cairo-lang
 ```
+
 ## Napkin calculations.
 
 ```
