@@ -8,3 +8,6 @@
     path = prover/giza
     url = https://github.com/maxgillett/winterfell
 	branch = custom_evaluation_frame
+[submodule "vendor/cairo-lang"]
+	path = vendor/cairo-lang
+	url = https://github.com/liamzebedee/cairo-lang
