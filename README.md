@@ -11,6 +11,10 @@ A decentralized horizontally-scaled state machine that can transfer 1,000,000 un
 
 This is a **completely new L1 architecture** that scales better than Rollups and Solana, and doesn't compromise on decentralization.
 
+## Install
+
+✨✨✨ See the [proof-of-concept](proof-of-concept.md) for more info. ✨✨✨
+
 ## Design.
 
 The blockchain state machine is decoupled into sequencing, execution, and storage layers.
@@ -32,44 +36,6 @@ Storage is partitioned according to row range, which makes it cheap to fetch lar
 
 More information in this [system model](https://viewer.diagrams.net/?tags=%7B%7D&highlight=0000ff&edit=_blank&layers=1&nav=1&title=Quark%20blockchain%20design#Uhttps%3A%2F%2Fdrive.google.com%2Fuc%3Fid%3D16K6Q2XHc31jMMdpi9XnMd2XxzX9BPKtQ%26export%3Ddownload).
 
-## Proof of Concept.
-
- * Sequencer - Tendermint blockchain built with [Lotion](https://lotionjs.com/).
- * Executor - 
-   * Built atop Starkware's [Cairo](https://www.cairo-lang.org/).
-   * Simple PoC of transactional memory. We run a program which accepts storage leaf inputs, performs some computation, and outputs the storage leaves written.
-   * Generates proofs and sends them to the storage layer
- * Storage - 
-   * Accepts execution receipts from executor, verifies the proofs, flushes the state.
-   * Stores data in SQLite.
-
-Progress:
-
- - [x] Implement sequencer
- - [x] Implement executer proof-of-concept
- - [x] Implement storage backend
- - [x] Setup simple e2e communications between all three
- - [ ] Open-source Cairo prover
-   - [x] [CLI to generate proofs](https://github.com/maxgillett/giza/pull/1)
-   - [x] Reverse-engineer Cairo runner outputs
-   - [ ] Parse cairo-runner output into winterfell structs
-   - [ ] implement cairo prime field
- - [ ] generate proofs and verify them on the storage node
- - [ ] test networking speed.
- - [ ] simple web UI for realtime storage updates
-
-### Install.
-
-```
-# Setup Python virtual env.
-python3.7 -m venv ~/cairo_venv
-source ~/cairo_venv/bin/activate
-
-# Install this forked version of the cairo toolchain
-# https://github.com/liamzebedee/cairo-lang
-# pip3 install cairo-lang
-```
-
 ## Napkin calculations.
 
 ```
@@ -83,11 +49,15 @@ Assuming good data locality, parallel trace generation.
 
 [100ms to fetch state in parallel from any number of storage nodes]
 [10ms to execute transaction in VM]
-[0.1ms to generate proof (ImmutableX's 10K tps implies this)]
+[1.6s to generate proof]
 [100ms to flush writes to storage journal]
-O(log^2 n) to verify proofs on distributed storage nodes.
+[16ms to verify proofs on distributed storage nodes]
 
-Napkin estimate - 250ms for a tx, with no hard ceiling on storage or execution steps.
+Napkin estimate - 2s for a tx, with no hard ceiling on storage or execution steps.
+
+Throughput estimates:
+
+O(log^2 n) proof verification time
 ```
 
 Storing state for a popular ERC20 like USDC -
