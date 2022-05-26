@@ -6,10 +6,8 @@ quark
 A decentralized horizontally-scaled state machine that can transfer 1,000,000 unique tokens on Uniswap in a single atomic transaction. How?
 
  * **UXTO-like storage**. Transactions only lock the parts of state they modify, there is no global state lock like in EVM.
- * ...**distributed**. Instead of every node storing the entire state, we partition the data in the same way Google's Bigtable/Spanner scales to trillions of rows. 
- * ...**decoupled from execution**. STARK proofs are the answer - self-contained transactions that prove the storage leaves they updated, in `O(log N)` time. 
-
-This is a **completely new L1 architecture** that scales better than Rollups and Solana, and doesn't compromise on decentralization.
+ * ...that's **distributed**. Instead of every node storing the entire state, we partition the data in the same way Google's Bigtable/Spanner scales to trillions of rows. 
+ * ...that's **decoupled from execution**. Self-contained transactions that prove the storage leaves they updated, in `O(log N)` time. Built using Cairo STARK's.
 
 ## Install
 
