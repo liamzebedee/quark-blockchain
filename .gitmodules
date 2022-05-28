@@ -13,4 +13,4 @@
 	url = https://github.com/liamzebedee/cairo-lang
 [submodule "execution/evmer/sputnikvm"]
 	path = execution/evmer/sputnikvm
-	url = https://github.com/liamzebedee/sputnikvm
+	url = https://github.com/liamzebedee/sputnik-evm
