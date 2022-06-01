@@ -1,65 +1,114 @@
-evm executor
-============
+goliath
+=======
 
-An Ethereum chain where sequencing, execution and storage are decoupled.
+The Goliath blockchain is an Ethereum-compatible blockchain with a giant capacity for storage.
 
- * [SputnikVM](https://github.com/rust-blockchain/evm) for EVM implementation.
- * EVM storage is hooked up to [SQLite](https://www.sqlite.org/index.html).
- * Ethereum JSON-RPC stub node is written in Node.
+## Roadmap.
+
+ - [x] Implement custom EVM with storage backend.
+ - [x] Design scheduler-executer.
+ - [ ] Basic sequencer.
+ - [ ] Schedule txs from sequencer for execution.
+ - [ ] Update data model in SQLite to use sequencer timestamp as key.
+ - [ ] Test/implement Ethereum RPC node. Deploy Lens protocol as test case.
+ - [ ] Deploy entire thing to Google Cloud.
+ - [ ] Design an economics model - payment for compute/storage (gas).
 
 ## Usage.
 
-In this demo, we deploy a sample Hardhat contract to the VM, and interact using the [Forge/Foundry CLI](https://book.getfoundry.sh/reference/cast/cast-calldata.html) through our stub Ethereum JSON-RPC node.
+```
+# Run the sequencer.
+./sequencer.sh
 
-```sh
-# Build the example contracts - Greeter.sol.
-cd hardhat-contracts/
-npm i
-npx hardhat build
+# Run the scheduler-executer.
+# This listens to the sequencer, and executes txs.
+./scheduler-executer.sh --scheduler-db scheduler.sqlite --state-db state.sqlite
 
-# Now build the VM.
-cd sputnikvm/
-cargo build
+# Run the ETH RPC node.
+./rpc.sh
 
-# Initialize the database schema
-export DB_GENESIS=1
-
-# Run a transaction which deploys Greeter.sol.
-# The msg.data is contained in the hardhat-contracts/artifacts/contracts/Greeter.sol/Greeter.json under "bytecode".
-# Use --write to flush the writes to the SQL backend.
-cargo run -- --db-path ./chain.sqlite --data '{"data": "0x608060405234801561001057600080fd5b506040516107893803806107898339818101604052810190610032919061015a565b806000908051906020019061004892919061004f565b50506102f6565b82805461005b90610224565b90600052602060002090601f01602090048101928261007d57600085556100c4565b82601f1061009657805160ff19168380011785556100c4565b828001600101855582156100c4579182015b828111156100c35782518255916020019190600101906100a8565b5b5090506100d191906100d5565b5090565b5b808211156100ee5760008160009055506001016100d6565b5090565b6000610105610100846101c0565b61019b565b90508281526020810184848401111561011d57600080fd5b6101288482856101f1565b509392505050565b600082601f83011261014157600080fd5b81516101518482602086016100f2565b91505092915050565b60006020828403121561016c57600080fd5b600082015167ffffffffffffffff81111561018657600080fd5b61019284828501610130565b91505092915050565b60006101a56101b6565b90506101b18282610256565b919050565b6000604051905090565b600067ffffffffffffffff8211156101db576101da6102b6565b5b6101e4826102e5565b9050602081019050919050565b60005b8381101561020f5780820151818401526020810190506101f4565b8381111561021e576000848401525b50505050565b6000600282049050600182168061023c57607f821691505b602082108114156102505761024f610287565b5b50919050565b61025f826102e5565b810181811067ffffffffffffffff8211171561027e5761027d6102b6565b5b80604052505050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052602260045260246000fd5b7f4e487b7100000000000000000000000000000000000000000000000000000000600052604160045260246000fd5b6000601f19601f8301169050919050565b610484806103056000396000f3fe608060405234801561001057600080fd5b50600436106100365760003560e01c8063a41368621461003b578063cfae321714610057575b600080fd5b6100556004803603810190610050919061022c565b610075565b005b61005f61008f565b60405161006c91906102a6565b60405180910390f35b806000908051906020019061008b929190610121565b5050565b60606000805461009e9061037c565b80601f01602080910402602001604051908101604052809291908181526020018280546100ca9061037c565b80156101175780601f106100ec57610100808354040283529160200191610117565b820191906000526020600020905b8154815290600101906020018083116100fa57829003601f168201915b5050505050905090565b82805461012d9061037c565b90600052602060002090601f01602090048101928261014f5760008555610196565b82601f1061016857805160ff1916838001178555610196565b82800160010185558215610196579182015b8281111561019557825182559160200191906001019061017a565b5b5090506101a391906101a7565b5090565b5b808211156101c05760008160009055506001016101a8565b5090565b60006101d76101d2846102ed565b6102c8565b9050828152602081018484840111156101ef57600080fd5b6101fa84828561033a565b509392505050565b600082601f83011261021357600080fd5b81356102238482602086016101c4565b91505092915050565b60006020828403121561023e57600080fd5b600082013567ffffffffffffffff81111561025857600080fd5b61026484828501610202565b91505092915050565b60006102788261031e565b6102828185610329565b9350610292818560208601610349565b61029b8161043d565b840191505092915050565b600060208201905081810360008301526102c0818461026d565b905092915050565b60006102d26102e3565b90506102de82826103ae565b919050565b6000604051905090565b600067ffffffffffffffff8211156103085761030761040e565b5b6103118261043d565b9050602081019050919050565b600081519050919050565b600082825260208201905092915050565b82818337600083830152505050565b60005b8381101561036757808201518184015260208101905061034c565b83811115610376576000848401525b50505050565b6000600282049050600182168061039457607f821691505b602082108114156103a8576103a76103df565b5b50919050565b6103b78261043d565b810181811067ffffffffffffffff821117156103d6576103d561040e565b5b80604052505050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052602260045260246000fd5b7f4e487b7100000000000000000000000000000000000000000000000000000000600052604160045260246000fd5b6000601f19601f830116905091905056fea264697066735822122070d157c4efbb3fba4a1bde43cbba5b92b69f2fc455a650c0dfb61e9ed3d4bd6364736f6c634300080400330000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000f48656c6c6f2c2048617264686174210000000000000000000000000000000000","from":"0xf000000000000000000000000000000000000000","to":"0x","gas":"0","gasPrice":"0","value":"0"}' --write
-
-
-# Demo the ETH RPC backend.
-# 
-
-# (1) Install Forge, Foundry, Cast.
-
-# (2) Build.
-cd rpc/
-npm i
-
-# (3) Run the Eth RPC server, passing in the path to the backend.
-DEV=1 SPUTNIK_EXECUTOR_PATH=../ npm run start
-
-# (4) Now we can call it!
-ETH_RPC_URL=http://localhost:8549 cast call 0x4fc766696b00069e53e8efa03e5a6de29667617e "greet()(string)"
-# Hello, Hardhat!
-
-# (5) For example, let's write data.
-cast calldata "setGreeting(string memory)" "oops I built it"
-# 0xa41368620000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000f6f6f70732049206275696c742069740000000000000000000000000000000000
-./target/debug/quarkevm --db-path ./chain.sqlite --data '{"data": "0xa4136862000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000116f6f70732049206275696c742069742e2e000000000000000000000000000000","from":"0xf000000000000000000000000000000000000000","to":"0x4fc766696b00069e53e8efa03e5a6de29667617e","gas":"0","gasPrice":"0","value":"0"}' --output-file ./out.bin --write
-
-ETH_RPC_URL=http://localhost:8549 cast call 0x4fc766696b00069e53e8efa03e5a6de29667617e "greet()(string)"
-# oops I built it
+# Submit txs to the ETH RPC node.
+cast send asdasdasd
 ```
 
-## Idea.
+## How does it work?
 
- * It's an EVM, where the state is hooked up to a Google Cloud database.
- * Transactions are executed, all contract/accounts are loaded from the distributed database backend.
- * Once a transaction is done, we write its leaves to the db.
- * Database lookups fetch the latest leaf for each SLOAD.
- * There is a very rudimentary Ethereum RPC mode slapped on top, which allows us to use ethers.js in the frontend.
- * The ETH RPC supports: eth_call, eth_sendTransaction
+### Background.
+
+In a smart contract blockchain, sequencing, execution and storage are all tightly coupled together on each node. 
+
+ 1. **Sequencing** - submitting a tx to the mempool, and then ordering it in a block.
+ 2. **Execution** - running the VM state transition for a transaction. `S(t+1) = Y(S(t), T)`, where `S(t)` is the state at time `t`, `Y` is a state transition fn, `T` is the transaction.
+ 3. **Storage** - the state (`S`) of the chain - accounts, code, and contract storage.
+
+Because these are all tightly coupled, it's really quite impossible to scale any individual subsystem. Rollups made the first step here, in moving execution and storage off of the L1 chain and onto "L2". Rollups are secure because the L2's execution is implemented inside the L1's VM, [and fraud can be proven](https://github.com/ethereum-optimism/cannon) - meaning you can use cryptoeconomic stakes to incentivise the L2 operator not to defraud users. But they still have the same limits on storage and throughput.
+
+Now, rollups could scale storage by putting it on a cloud database, right? What would be the problem here? Well, to start with - that's not decentralized. Anyone could modify the database, take it down, etc. You **would** be able to verify this happening though - running a local node, you could detect such faults, **as long as you had the list of all transactions up until that point**. 
+
+What's interesting here is that with only a transaction sequence, we can maintain verifiability. Imagine we extract the sequencing away from our hypothetical rollup's `geth`, into a separate service - called the **sequencer**. The sequencer is really a minimum viable blockchain - given an ordered list of transactions, anyone can execute them locally, and verify the state. So long as the sequencing service is byzantine-fault tolerant (meaning nodes can fail, maliciously or not, and keep working), the blockchain has some degree of decentralization. Which is easy, because we already have Tendermint BFT.
+
+So, given a decentralized sequencer, we're really free to build our execution layer however we want. We could build a protocol that distributes execution to a set of stakers, and they all use stakes and interactive fraud proofs to verify they are doing their job. Or maybe we could use STARK validity proofs, which my [Quark blockchain](https://github.com/liamzebedee/quark-blockchain) design does. But this still isn't really profoundly better than what we have now.
+
+What is profoundly better? **Horizontal scaling of storage.** Right now, we have this clusterfuck of rollups and bridges, because we can't fundamentally increase the capacity of our chains by adding another node - so every time we hit the gas ceiling, we have to diverge and start a new chain. But what if we could scale like Google scales its databases? Then we wouldn't need to go elsewhere - and we wouldn't **lose synchronous composability** either. 
+
+Goliath achieves this using a couple of innovations on top of decoupling - stateless execution, a transactional memory model of state and a storage network. Transactions come from the sequencer and are sent to the executors for processing. The executors run a modified EVM, which reads all state from a distributed storage network. Notably, this is O(1) in time - due to existence of Ethereum [access lists](https://eips.ethereum.org/EIPS/eip-2930) for transactions, we can prefetch the entire input state for a transaction in one network call, as opposed to during the execution itself (which could stall the executor needlessly). Contract state is also designed in a way which preserves data locality, making it cheap to fetch large numbers of storage slots from a single contract, as this only touches at most a few storage nodes. When a transaction finishes, the executor flushes the state leaves that were written to the storage layer. 
+
+Goliath exposes the EVM state as a form of [transactional memory](https://en.wikipedia.org/wiki/Multiversion_concurrency_control) for deployment atop a horizontally-scalable distributed database. The three tries of EVM world state - `(account, code, storage)` - are each extended with an additional dimension of time, which is set as the transaction's sequence number, as well as a commitment to the previous entry. For example, a storage write is an insertion of a row into the `storage` trie with the data `(time, address, key, value)`. This is useful for a couple of reasons. Firstly, it's very easy to reason about and implement historical data access for, as well as pruning of old state into cheaper storage. Secondly, it helps with implementing parallelism in the execution layer. 
+
+The storage and the execution layers are scaled using two different techniques. The storage network is based on Google's Bigtable, and scales via sharding. The execution layer by contrast is scaled via distributed computing. 
+
+
+> turns out giving up large liveness guarantees to a single actor opens up tons of design space and if you can maintain verifiability it's not even that big a tradeoff for many applications
+
+### Data model.
+
+> "Show me your [code] and conceal your [data structures], and I shall continue to be mystified. Show me your [data structures], and I won't usually need your [code]; it'll be obvious."
+
+```
+# Same format as Ethereum transactions.
+type tx = (from, to, data)
+
+# The sequencer provides an ordering of execution for all transactions.
+sequencer:
+    sequences : tx -> seq
+
+# The scheduler listens to transactions from the sequencer,
+# and builds a queue for parallel execution.
+executer-scheduler:
+    latest_sequence : number
+    queue : []
+
+# The executer is a STATELESS Ethereum VM.
+# Recap: EVM takes state and a transaction, and produces state(t+1).
+# The executor outsources its state (reads, writes) to the storage layer.
+executer:
+    none
+
+# The storage layer stores a complete log of all state for the executer.
+# Given a sequence, it can provide the reduced state for that point in time.
+storage:
+    state -> (sequence) -> (accounts, code, storage)
+
+# The RPC is an Ethereum RPC node, so we can interact with goliath!!!
+# It has no state, though it integrates the entire system.
+# `eth_call` will call directly to the executor.
+# `eth_sendTransaction` will:
+# 1) sequence the tx
+# 2) listen for the result of execution from the scheduler
+rpc:
+```
+
+## How to compare blockchain designs?
+
+There are a lot of axes you can compare blockchain designs across:
+
+ * **Storage capacity**. How much data can you access in one transaction? 
+ * **Computation capacity**. Called the *gas limit* in Ethereum, how many computational steps can you do in one transaction?
+ * **Computation throughput**. Commonly referred to as TPS - how much *gas per second* can your chain process?
+ * **Parallelism**. Does your chain run computation in parallel, or is it constrained by processing txs one-by-one? 
+ * **Costs for storage and computation**. Based on your chain's architecture and decentralization, the costs of storage and computation will vary.
+ * **Decentralization**. Verifiability (via cryptoeconomics, computational methods like replication or STARK proofs), data availability (how long is data available and does that impact who can verify), node requirements (are you targeting data centres or average home PC's).
+
+This design optimizes for storage capacity, computational throughput and parallelism.
+
+
