@@ -18,4 +18,12 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
  */
 module.exports = {
   solidity: "0.8.4",
+  networks: {
+    localhost: {
+      url: "http://localhost:8545",
+      accounts: [
+        '0xdd11a7ef293ec6bfb52b6cb2744b48106590ad3cb205c4333f954537bd50ed57'
+      ]
+    }
+  }
 };

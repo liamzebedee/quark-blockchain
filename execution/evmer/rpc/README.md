@@ -1,7 +1,8 @@
 rpc
 ===
 
-Stubbed out Ethereum JSON-RPC client for the `quarkevm`.
+Stubbed out Ethereum JSON-RPC client for the Goliath blockchain. Implement most of [EIP-1474](https://eips.ethereum.org/EIPS/eip-1474).
+
 
 ## Usage
 
