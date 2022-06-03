@@ -42,7 +42,12 @@ cargo run -- --db-path ./chain.sqlite --data '{"data": "0x6080604052348015610010
 # Demo the ETH RPC backend.
 # 
 
-# (1) Install Forge, Foundry, Cast.
+# (1) Install dapptools (seth).
+export ETH_RPC_URL=http://localhost:8545
+export ETH_FROM=$(seth accounts | head -n1 | cut -f1 -d' ')
+# The tx will be signed using the first account in your Ethereum keystore.
+# The passphrase should be stored in a file ".pass" if you want to do this non-interactively.
+export ETH_PASSWORD=.pass
 
 # (2) Build.
 cd rpc/
@@ -52,16 +57,16 @@ npm i
 DEV=1 SPUTNIK_EXECUTOR_PATH=../ npm run start
 
 # (4) Now we can call it!
-ETH_RPC_URL=http://localhost:8549 cast call 0x4fc766696b00069e53e8efa03e5a6de29667617e "greet()(string)"
+cast call 0x8984f16f01e19da0b4c8fb8c3d9b30f708cbfc1a "greet()(string)"
 # Hello, Hardhat!
 
 # (5) For example, let's write data.
-cast calldata "setGreeting(string memory)" "oops I built it"
-# 0xa41368620000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000f6f6f70732049206275696c742069740000000000000000000000000000000000
-./target/debug/quarkevm --db-path ./chain.sqlite --data '{"data": "0xa4136862000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000116f6f70732049206275696c742069742e2e000000000000000000000000000000","from":"0xf000000000000000000000000000000000000000","to":"0x4fc766696b00069e53e8efa03e5a6de29667617e","gas":"0","gasPrice":"0","value":"0"}' --output-file ./out.bin --write
-
-ETH_RPC_URL=http://localhost:8549 cast call 0x4fc766696b00069e53e8efa03e5a6de29667617e "greet()(string)"
+seth send 0x8984f16f01e19da0b4c8fb8c3d9b30f708cbfc1a $(seth calldata "setGreeting(string memory)" '"oops I built it"')
+seth call 0x8984f16f01e19da0b4c8fb8c3d9b30f708cbfc1a "greet()(string)"
 # oops I built it
+
+# (6) Or through the CLI:
+./target/debug/quarkevm --db-path ./chain.sqlite --data '{"data": "0xa4136862000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000116f6f70732049206275696c742069742e2e000000000000000000000000000000","from":"0xf000000000000000000000000000000000000000","to":"0x4fc766696b00069e53e8efa03e5a6de29667617e","gas":"0","gasPrice":"0","value":"0"}' --output-file ./out.bin --write
 ```
 
 ## Idea.
