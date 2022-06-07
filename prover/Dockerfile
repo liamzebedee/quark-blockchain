@@ -10,6 +10,7 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --de
 RUN . $HOME/.cargo/env && rustup default nightly
 
 # Build.
+# Mount /giza and /winterfell.
 # ADD ./giza /app/giza
 # ADD ./winterfell /app/winterfell
 

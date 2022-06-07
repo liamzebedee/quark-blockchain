@@ -1,0 +1,36 @@
+{
+    "trace_path": "/Users/liamz/Documents/Projects/shard/cairo/execution/out/trace.bin",
+    "memory_path": "/Users/liamz/Documents/Projects/shard/cairo/execution/out/memory.bin",
+    "pedersen": [
+        {
+            "index": 0,
+            "x": "0x1a4",
+            "y": "0x1"
+        },
+        {
+            "index": 1,
+            "x": "0x444a85f021586864a9d11a11358e53f86dabfd074b23b1cd0d75f9c92b75931",
+            "y": "0x7b"
+        }
+    ],
+    "range_check": [
+        {
+            "index": 0,
+            "value": "0x1a4"
+        },
+        {
+            "index": 1,
+            "value": "0x0"
+        },
+        {
+            "index": 2,
+            "value": "0x0"
+        },
+        {
+            "index": 3,
+            "value": "0x2"
+        }
+    ],
+    "ecdsa": [],
+    "bitwise": []
+}
